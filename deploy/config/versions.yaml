@@ -1,0 +1,15 @@
+# Candidates copied from docs/decisions.md, not an installation lock.
+status: unverified_candidates
+candidates:
+  ros_distribution: jazzy
+  ubuntu: "24.04"
+  python: "3.12"
+  mujoco: "3.16.0"
+  isaac_ros: "4.6.0"
+  jetpack: "7.2"
+validated:
+  source_revision: null
+  workstation_base_digest: null
+  jetson_base_digest: null
+  installed_jetpack: null
+# Isaac ROS is optional; Coral is undecided and absent from initial dependencies.

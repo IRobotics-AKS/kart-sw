@@ -1,0 +1,27 @@
+name: Scaffold checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  scaffold:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python tools/check_scaffold.py
+      - run: python tools/check_deploy.py
+      - name: Build standalone simulator wheel
+        run: python -m pip wheel --no-deps --wheel-dir /tmp/kart-wheels ./simulation/sim
+      - name: Verify standalone import outside the checkout
+        run: |
+          python -m venv /tmp/kart-import
+          /tmp/kart-import/bin/python -m pip install --no-deps /tmp/kart-wheels/*.whl
+          cd /tmp
+          /tmp/kart-import/bin/python -c "import sim"

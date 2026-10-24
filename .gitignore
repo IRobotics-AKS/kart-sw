@@ -1,0 +1,33 @@
+# Python and local environments
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.venv-*/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+# ROS / native builds
+build/
+install/
+log/
+# Local configuration, credentials, and large runtime data
+.env
+.env.*
+!.env.example
+*.local.yaml
+*.local.json
+*.pem
+*.key
+secrets/
+recordings/
+datasets/
+*.db3
+*.mcap
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/

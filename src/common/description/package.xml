@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>description</name>
+  <version>0.0.0</version>
+  <description>Nominal geometry and vehicle frame description (scaffold; runtime pending).</description>
+  <!-- Replace publication metadata once ownership and licensing are decided. -->
+  <maintainer email="maintainers@example.invalid">Kart maintainers</maintainer>
+  <license>TODO</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

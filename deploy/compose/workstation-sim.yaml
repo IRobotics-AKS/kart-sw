@@ -1,0 +1,49 @@
+# Scaffold only: bringup exits until runtime nodes/configuration exist.
+name: kart-workstation-sim
+services:
+  simulation:
+    image: "${SIMULATION_IMAGE:?Set the simulation image built for this host}"
+    network_mode: "host"
+    init: true
+    restart: "no"
+    stop_grace_period: "10s"
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+    tmpfs: ["/tmp"]
+    environment:
+      ROS_DOMAIN_ID: "${SIM_ROS_DOMAIN_ID:?Set the same simulation domain on both hosts}"
+      RMW_IMPLEMENTATION: "${RMW_IMPLEMENTATION:?Select an installed and tested RMW implementation}"
+      ROS_LOG_DIR: "/tmp/ros/log"
+    command: ["ros2","launch","sim_bringup","simulation.launch.py","namespace:=${NAMESPACE:-kart}","use_sim_time:=true"]
+  autonomy:
+    image: "${AUTONOMY_IMAGE:?Set the autonomy image built for this host}"
+    network_mode: "host"
+    init: true
+    restart: "no"
+    stop_grace_period: "10s"
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+    tmpfs: ["/tmp"]
+    environment:
+      ROS_DOMAIN_ID: "${SIM_ROS_DOMAIN_ID:?Set the same simulation domain on both hosts}"
+      RMW_IMPLEMENTATION: "${RMW_IMPLEMENTATION:?Select an installed and tested RMW implementation}"
+      ROS_LOG_DIR: "/tmp/ros/log"
+    command: ["ros2","launch","autonomy_bringup","autonomy.launch.py","namespace:=${NAMESPACE:-kart}","use_sim_time:=true"]
+  recorder:
+    image: "${RECORDER_IMAGE:?Set the recorder image built for this host}"
+    network_mode: "host"
+    init: true
+    restart: "no"
+    stop_grace_period: "10s"
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+    tmpfs: ["/tmp"]
+    environment:
+      ROS_DOMAIN_ID: "${SIM_ROS_DOMAIN_ID:?Set the same simulation domain on both hosts}"
+      RMW_IMPLEMENTATION: "${RMW_IMPLEMENTATION:?Select an installed and tested RMW implementation}"
+      ROS_LOG_DIR: "/tmp/ros/log"
+    profiles: ["recording"]
+    command: ["ros2","bag","--help"]

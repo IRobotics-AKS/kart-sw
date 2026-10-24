@@ -1,0 +1,17 @@
+# Measurement worksheet, not runtime ROS parameters or calibrated geometry.
+status: unmeasured
+units:
+  length: m
+  angle: rad
+body_axes: {x: forward, y: left, z: up}
+base_link_reference: null
+dimensions:
+  wheelbase: null
+  front_track: null
+  rear_track: null
+mounts:
+  imu_link: {xyz: null, rpy: null}
+  gnss_link: {xyz: null, rpy: null}
+  camera_front_link: {xyz: null, rpy: null}
+  camera_side_left_link: {xyz: null, rpy: null}
+  camera_side_right_link: {xyz: null, rpy: null}

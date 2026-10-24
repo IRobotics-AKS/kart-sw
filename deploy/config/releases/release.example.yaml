@@ -1,0 +1,15 @@
+# Release worksheet, not a deployable release manifest. Null means unverified.
+status: unverified
+source_revision: null
+images:
+  simulation: {digest: null, architecture: null}
+  autonomy: {digest: null, architecture: null}
+  hardware: {digest: null, architecture: null}
+  recorder: {digest: null, architecture: null}
+jetpack_version: null
+mcu_firmware_revision: null
+vesc_firmware_revision: null
+configuration_revision: null
+calibration_revision: null
+middleware_profile: null
+validation_report: null

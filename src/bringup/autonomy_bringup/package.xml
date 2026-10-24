@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>autonomy_bringup</name>
+  <version>0.0.0</version>
+  <description>Common autonomy stack and vehicle management (scaffold; runtime pending).</description>
+  <!-- Replace publication metadata once ownership and licensing are decided. -->
+  <maintainer email="maintainers@example.invalid">Kart maintainers</maintainer>
+  <license>TODO</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>interfaces</exec_depend>
+  <exec_depend>description</exec_depend>
+  <exec_depend>perception</exec_depend>
+  <exec_depend>localization</exec_depend>
+  <exec_depend>planning</exec_depend>
+  <exec_depend>control</exec_depend>
+  <exec_depend>vehicle_manager</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

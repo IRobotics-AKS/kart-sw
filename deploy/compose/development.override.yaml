@@ -1,0 +1,10 @@
+# Use only with workstation-sim.yaml or simulator-server.yaml.
+# Source is available for manual development builds; it does not replace the
+# installed overlay, trigger compilation, or make scaffold nodes runnable.
+services:
+  simulation:
+    volumes:
+      - type: bind
+        source: ${REPO_ROOT:?Set the absolute repository path}
+        target: /workspace
+        read_only: true

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sim"
+version = "0.0.0"
+description = "ROS-independent MuJoCo simulator scaffold for the Top Kart Dreamer"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.data-files]
+"share/sim/models/dreamer" = ["models/dreamer/README.md"]
+"share/sim/worlds" = ["worlds/README.md"]
+"share/sim/config" = ["config/README.md"]
