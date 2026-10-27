@@ -95,7 +95,7 @@ for release deployment. Do not invent registry URLs or unverified NVIDIA image
 tags. Record firmware revision and relevant configuration/calibration versions
 alongside images; one Git commit does not capture externally changed device state.
 
-The simulation image installs `simulation/sim` and its assets explicitly,
+The simulation image installs `simulation` and its assets explicitly,
 then builds `sim_bringup` and its ROS dependencies. Autonomy and hardware
 images build their own bringup packages and recursive dependencies. Example build
 selection for the current package skeletons:

@@ -112,7 +112,8 @@ def check():
         require(actual == expected, f"{target}: dependency boundary changed: {actual}")
 
     checked = 0
-    for base in ("src", "simulation/sim/src", "tools"):
+    for base in ("src", "simulation/src", "tools"):
+        require((ROOT / base).is_dir(), f"Missing source directory: {base}")
         for path in sorted((ROOT / base).rglob("*.py")):
             if any(part in {"build", "install", "__pycache__"} or part.endswith(".egg-info")
                    for part in path.relative_to(ROOT).parts):

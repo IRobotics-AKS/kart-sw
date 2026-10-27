@@ -87,8 +87,8 @@ def check():
         require(copied == closure(target, manifests),
                 f"{image}: copied packages differ from its dependency closure")
         if image == "simulation":
-            require("COPY simulation/sim " in dockerfile and
-                    "pip install --no-cache-dir /opt/kart/simulation/sim" in dockerfile,
+            require("COPY simulation/ /opt/kart/simulation/" in dockerfile and
+                    "pip install --no-cache-dir /opt/kart/simulation" in dockerfile,
                     "Simulation image must install the standalone Python core")
         else:
             require("COPY simulation/" not in dockerfile,

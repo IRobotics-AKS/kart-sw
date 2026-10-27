@@ -1,6 +1,6 @@
 # Decisions and open questions
 
-Recorded: 2026-10-21; updated: 2026-10-24. The finalized project design now uses
+Recorded: 2026-10-21; updated: 2026-10-27. The finalized project design now uses
 a monorepo. Distinguish architecture decisions, unresolved hardware/version
 choices, and implemented/verified software.
 
@@ -108,6 +108,12 @@ References checked during the discussion:
 
 ## Implementation status
 
+Layout update, 2026-10-27: the user requested removing the redundant standalone
+project directory beneath `simulation/`. Its `pyproject.toml`, assets, tests, and
+`src/sim/` now live directly under `simulation/`. The import remains `sim`;
+the separate ROS bridge remains in `src/simulation/sim_ros/`. Build commands,
+Docker COPY/install paths, CI, and scaffold checks follow the flattened layout.
+
 Naming update, 2026-10-24: the user requested unprefixed component names.
 All ROS packages, Python modules, their directories/resources, and corresponding
 build/launch/deployment references now use names such as `control`, `interfaces`,
@@ -120,7 +126,7 @@ excluded its Logitech BRIO entry. The current inventory is in
 [hardware.md](hardware.md). This resolves the previously unknown Jetson and
 sensor model names, but does not confirm installation or integration testing.
 
-Scaffold update, 2026-10-24: added the standalone `simulation/sim` Python
+Scaffold update, 2026-10-24: added the standalone `simulation` Python
 package, 13 ROS package skeletons with install metadata, guarded bringup launch
 files, four Docker build recipes, four host-specific Compose templates, a
 development source-mount override, and configuration/release worksheets. Firmware

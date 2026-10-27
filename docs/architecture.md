@@ -1,6 +1,6 @@
 # Finalized project structure: kart monorepo
 
-Updated: 2026-10-24. This is the target project architecture requested by the user.
+Updated: 2026-10-27. This is the target project architecture requested by the user.
 It supersedes the earlier five-repository plan. Package/build skeletons, guarded
 launch files, and deployment templates now exist. Simulator behavior, autonomy,
 physical integration, and validated deployment images are not implemented yet.
@@ -31,13 +31,12 @@ kart/
     ros-structure.md
     docker-deployment.md
   simulation/
-    sim/
-      pyproject.toml
-      src/sim/               ROS-independent MuJoCo library
-      models/dreamer/             MJCF and simulation assets
-      worlds/                    Tracks and obstacles
-      config/                    Noise, physics, scenarios
-      tests/
+    pyproject.toml
+    src/sim/                     ROS-independent MuJoCo library
+    models/dreamer/               MJCF and simulation assets
+    worlds/                      Tracks and obstacles
+    config/                      Noise, physics, scenarios
+    tests/
   src/                           ROS workspace package discovery root
     common/
       interfaces/
@@ -80,7 +79,7 @@ Do not make one container per ROS node.
 
 ## Build and dependency boundaries
 
-- `simulation/sim` is a normal Python project. It loads, steps, resets, and
+- `simulation` is a normal Python project. It loads, steps, resets, and
   renders MuJoCo without ROS. It owns simulated actuators, sensor behavior, and
   fault scenarios.
 - `sim_ros` translates the simulation API to shared ROS contracts. Its image

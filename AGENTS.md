@@ -10,8 +10,9 @@ changes requirements. The monorepo design supersedes the earlier multi-repo plan
 - This is the source repository for the autonomous Top Kart Dreamer system.
   Its current checkout is named `kart-sw`; do not rename its remote or
   directory unless requested.
-- Keep MuJoCo core code in `simulation/sim/`, independent of ROS. Keep its
-  ROS adapter in `src/simulation/sim_ros/`.
+- Keep the standalone MuJoCo project in `simulation/`, with core code in
+  `simulation/src/sim/`, independent of ROS. Keep its ROS adapter in
+  `src/simulation/sim_ros/`.
 - Use component names without a shared vehicle prefix for ROS packages and
   Python modules (for example, `control`, `interfaces`, and `sim_ros`).
 - Keep deployed autonomy in `src/autonomy/`, shared contracts/description in

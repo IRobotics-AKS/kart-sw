@@ -37,9 +37,9 @@ Use Python 3.12 and a separate environment:
 
 ```sh
 python3.12 -m venv .venv
-.venv/bin/python -m pip install -e simulation/sim
+.venv/bin/python -m pip install -e simulation
 .venv/bin/python -c "import sim; print(sim.__file__)"
-.venv/bin/python -m pip wheel --no-deps --wheel-dir /tmp/kart-wheels simulation/sim
+.venv/bin/python -m pip wheel --no-deps --wheel-dir /tmp/kart-wheels simulation
 ```
 
 This installs an empty simulator namespace and asset notes, not MuJoCo or a
@@ -67,7 +67,7 @@ installing every repository dependency can pull unrelated simulation/driver
 requirements into autonomy. Each Docker recipe copies only its service closure
 before running rosdep. No vendor drivers are pinned or installed by this scaffold.
 
-For simulation, explicitly install `simulation/sim` into the Python
+For simulation, explicitly install `simulation` into the Python
 environment used to build/run the adapter. The simulation Docker recipe does this
 before colcon. The firmware and handoff directories are excluded from colcon.
 Use `--base-paths src` for deliberate ROS-only discovery.

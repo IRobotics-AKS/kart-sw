@@ -18,7 +18,7 @@ jobs:
       - run: python tools/check_scaffold.py
       - run: python tools/check_deploy.py
       - name: Build standalone simulator wheel
-        run: python -m pip wheel --no-deps --wheel-dir /tmp/kart-wheels ./simulation/sim
+        run: python -m pip wheel --no-deps --wheel-dir /tmp/kart-wheels ./simulation
       - name: Verify standalone import outside the checkout
         run: |
           python -m venv /tmp/kart-import

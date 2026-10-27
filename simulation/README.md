@@ -8,7 +8,7 @@ From the repository root, with Python 3.12:
 
 ```sh
 python3.12 -m venv .venv
-.venv/bin/python -m pip install -e simulation/sim
+.venv/bin/python -m pip install -e simulation
 .venv/bin/python -c "import sim; print(sim.__file__)"
 ```
 

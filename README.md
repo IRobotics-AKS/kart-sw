@@ -12,7 +12,7 @@ until those components exist. This checkout does not drive a simulated or real k
 
 | Directory | Responsibility |
 | --- | --- |
-| `simulation/sim/` | Standalone Python simulation package and future MuJoCo assets |
+| `simulation/` | Standalone Python simulation package and future MuJoCo assets |
 | `src/common/` | Shared ROS interface and vehicle-description skeletons |
 | `src/simulation/` | ROS adapter for the standalone simulator |
 | `src/autonomy/` | Perception, localization, planning, and control |

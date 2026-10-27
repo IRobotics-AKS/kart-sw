@@ -18,8 +18,8 @@ RUN test -f /opt/ros/jazzy/setup.bash \
     && python3 -m venv --system-site-packages /opt/kart/venv
 COPY --chmod=755 deploy/docker/entrypoint.sh /usr/local/bin/kart-entrypoint
 COPY --chmod=755 deploy/docker/build-workspace.sh /usr/local/bin/kart-build-workspace
-COPY simulation/sim /opt/kart/simulation/sim
-RUN python -m pip install --no-cache-dir /opt/kart/simulation/sim
+COPY simulation/ /opt/kart/simulation/
+RUN python -m pip install --no-cache-dir /opt/kart/simulation
 COPY src/common/interfaces /opt/kart/src/common/interfaces
 COPY src/simulation/sim_ros /opt/kart/src/simulation/sim_ros
 COPY src/bringup/sim_bringup /opt/kart/src/bringup/sim_bringup
