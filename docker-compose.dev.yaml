@@ -1,0 +1,30 @@
+# Development environment for interactive ROS 2 Jazzy work
+# Usage: docker compose -f docker-compose.dev.yaml run --rm dev
+name: kart-dev
+
+services:
+  dev:
+    image: osrf/ros:jazzy-desktop-full
+    network_mode: "host"
+    stdin_open: true
+    tty: true
+    working_dir: /workspace
+    volumes:
+      # Mount the entire project for live editing
+      - .:/workspace:cached
+      # Persistent build artifacts and install space
+      - dev-build:/workspace/build
+      - dev-install:/workspace/install
+      - dev-log:/workspace/log
+    environment:
+      - ROS_DOMAIN_ID=41
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - PYTHONUNBUFFERED=1
+      # Preserve command history
+      - HISTFILE=/workspace/.bash_history
+    command: /bin/bash
+
+volumes:
+  dev-build:
+  dev-install:
+  dev-log:
