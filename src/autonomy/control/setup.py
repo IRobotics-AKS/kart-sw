@@ -17,5 +17,7 @@ setup(
     maintainer_email="maintainers@example.invalid",
     description="Trajectory tracking and actuator requests (scaffold)",
     license="TODO",
-    entry_points={"console_scripts": []},
+    entry_points={"console_scripts": [
+        "pure_pursuit_node = control.pure_pursuit_node:main",
+    ]},
 )
