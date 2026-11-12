@@ -8,12 +8,15 @@ version = "0.0.0"
 description = "ROS-independent MuJoCo simulator scaffold for the Top Kart Dreamer"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = ["mujoco", "numpy"]
+
+[project.optional-dependencies]
+test = ["pytest"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.data-files]
-"share/sim/models/dreamer" = ["models/dreamer/README.md"]
-"share/sim/worlds" = ["worlds/README.md"]
+"share/sim/models/dreamer" = ["models/dreamer/README.md", "models/dreamer/dreamer.xml"]
+"share/sim/worlds" = ["worlds/README.md", "worlds/track_demo.xml", "worlds/track_surface.obj", "worlds/track_lines.obj"]
 "share/sim/config" = ["config/README.md"]

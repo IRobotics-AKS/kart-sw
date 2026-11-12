@@ -1,0 +1,102 @@
+<!--
+  Top Kart Dreamer, PLACEHOLDER model.
+
+  Every number marked PLACEHOLDER below is a rough guess for a generic adult
+  racing kart, NOT a measurement of the real chassis. Measure the real kart
+  (wheelbase, track width, tire diameter/width, mass, CG height, camera mounts)
+  and replace them. Per docs/architecture.md, measured geometry is the source
+  of truth for this file.
+
+  This file is an include fragment (no ground plane). Load a world from
+  simulation/worlds/ instead, which includes this file.
+
+  Frame: kart +X forward, +Y left, +Z up. Origin at the middle of the wheelbase.
+  Wheelbase 1.05 m: front axle x=+0.525, rear axle x=-0.525.
+  Track width 1.25 m: wheels at y=+/-0.625.
+
+  Cameras (MuJoCo cameras look along their own -Z, with +Y up in the image):
+    cam_front  yaw   0 deg  (OAK-D S2)
+    cam_left   yaw +45 deg  (OAK-1 Lite)
+    cam_right  yaw -45 deg  (OAK-1 Lite)
+  The xyaxes below are (image-right vector, image-up vector) in the kart frame.
+-->
+<mujoco model="dreamer">
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.002" integrator="implicitfast" cone="elliptic" impratio="10"/>
+
+  <default>
+    <default class="tire">
+      <!-- PLACEHOLDER: tire/contact friction. Tune against measured behavior. -->
+      <geom type="cylinder" size="0.13 0.05" mass="2.0" friction="1.3 0.01 0.001"
+            condim="3" rgba="0.08 0.08 0.08 1"/>
+    </default>
+    <default class="cam">
+      <!-- PLACEHOLDER: ~69 deg horizontal FOV at 4:3 is about 54 deg vertical.
+           Check against the Luxonis datasheet for the exact lens and stream. -->
+      <camera fovy="54"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <body name="kart" pos="0 0 0.16">
+      <freejoint name="kart_free"/>
+
+      <!-- PLACEHOLDER: ~100 kg chassis plus batteries and electronics. -->
+      <geom name="chassis" type="box" size="0.60 0.25 0.04" pos="0 0 0"
+            mass="100" rgba="0.75 0.12 0.12 1"/>
+      <!-- Seat/battery block, visual only. -->
+      <geom name="battery_box" type="box" size="0.20 0.20 0.10" pos="-0.25 0 0.14"
+            contype="0" conaffinity="0" mass="0.001" rgba="0.2 0.2 0.25 1"/>
+      <!-- Camera mast, visual only. PLACEHOLDER position. -->
+      <geom name="mast" type="box" size="0.02 0.20 0.02" pos="0.50 0 0.54"
+            contype="0" conaffinity="0" mass="0.001" rgba="0.2 0.2 0.2 1"/>
+      <geom name="mast_post" type="box" size="0.02 0.02 0.28" pos="0.50 0 0.30"
+            contype="0" conaffinity="0" mass="0.001" rgba="0.2 0.2 0.2 1"/>
+
+      <!-- Three cameras. PLACEHOLDER mount positions. -->
+      <camera name="cam_front" class="cam" pos="0.55 0.00 0.58" xyaxes="0 -1 0 0 0 1"/>
+      <camera name="cam_left"  class="cam" pos="0.52 0.18 0.58" xyaxes="0.7071068 -0.7071068 0 0 0 1"/>
+      <camera name="cam_right" class="cam" pos="0.52 -0.18 0.58" xyaxes="-0.7071068 -0.7071068 0 0 0 1"/>
+
+      <!-- Front steering knuckles. PLACEHOLDER: both wheels share one angle
+           (no Ackermann geometry yet). Limit is about 29 deg. -->
+      <body name="steer_fl" pos="0.525 0.625 -0.03">
+        <inertial pos="0 0 0" mass="0.5" diaginertia="0.002 0.002 0.002"/>
+        <joint name="steer_fl" type="hinge" axis="0 0 1" range="-0.5 0.5" damping="5"/>
+        <body name="wheel_fl">
+          <joint name="spin_fl" type="hinge" axis="0 1 0" damping="0.05"/>
+          <geom name="tire_fl" class="tire" fromto="0 -0.05 0 0 0.05 0"/>
+        </body>
+      </body>
+      <body name="steer_fr" pos="0.525 -0.625 -0.03">
+        <inertial pos="0 0 0" mass="0.5" diaginertia="0.002 0.002 0.002"/>
+        <joint name="steer_fr" type="hinge" axis="0 0 1" range="-0.5 0.5" damping="5"/>
+        <body name="wheel_fr">
+          <joint name="spin_fr" type="hinge" axis="0 1 0" damping="0.05"/>
+          <geom name="tire_fr" class="tire" fromto="0 -0.05 0 0 0.05 0"/>
+        </body>
+      </body>
+
+      <!-- Rear driven wheels. A real kart has a solid rear axle; two wheels
+           driven at the same speed is the closest simple stand-in. -->
+      <body name="wheel_rl" pos="-0.525 0.625 -0.03">
+        <joint name="spin_rl" type="hinge" axis="0 1 0" damping="0.05"/>
+        <geom name="tire_rl" class="tire" fromto="0 -0.055 0 0 0.055 0"/>
+      </body>
+      <body name="wheel_rr" pos="-0.525 -0.625 -0.03">
+        <joint name="spin_rr" type="hinge" axis="0 1 0" damping="0.05"/>
+        <geom name="tire_rr" class="tire" fromto="0 -0.055 0 0 0.055 0"/>
+      </body>
+    </body>
+  </worldbody>
+
+  <!-- PLACEHOLDER actuators. Real VESC/motor/steering response is unspecified
+       in docs/hardware.md. ctrl[0..1] steer angle (rad), ctrl[2..3] rear wheel
+       speed (rad/s). Wheel radius 0.13 m, so 1 m/s is about 7.7 rad/s. -->
+  <actuator>
+    <position name="steer_fl" joint="steer_fl" kp="800" ctrlrange="-0.5 0.5"/>
+    <position name="steer_fr" joint="steer_fr" kp="800" ctrlrange="-0.5 0.5"/>
+    <velocity name="drive_rl" joint="spin_rl" kv="15" ctrlrange="-120 120" forcerange="-150 150"/>
+    <velocity name="drive_rr" joint="spin_rr" kv="15" ctrlrange="-120 120" forcerange="-150 150"/>
+  </actuator>
+</mujoco>
