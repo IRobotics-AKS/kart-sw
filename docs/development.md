@@ -1,6 +1,6 @@
 # Developing the scaffold
 
-Updated: 2026-10-24.
+Updated: 2026-10-27.
 
 ## Implemented structure
 
@@ -33,7 +33,7 @@ source dependency sets. It never starts containers.
 
 ## Standalone simulator package
 
-Use Python 3.12 and a separate environment:
+Use Python 3.12 and the repository-level environment. Create it once:
 
 ```sh
 python3.12 -m venv .venv
@@ -42,10 +42,16 @@ python3.12 -m venv .venv
 .venv/bin/python -m pip wheel --no-deps --wheel-dir /tmp/kart-wheels simulation
 ```
 
-This installs an empty simulator namespace and asset notes, not MuJoCo or a
-working simulator. Verify the candidate MuJoCo version/platform before adding an
-exact dependency. Update the wheel's explicit data-file list when adding MJCF,
+This installs the simulator namespace, asset notes, and pinned MuJoCo 3.16.0.
+The simulator itself is still to be implemented. Update the wheel's explicit
+data-file list when adding MJCF,
 worlds, or configuration; test installed assets outside the source checkout.
+
+After editing dependencies in `simulation/pyproject.toml`, update the existing
+environment with `uv pip install --python .venv/bin/python -e ./simulation`.
+In VS Code, run `Python: Select Interpreter` and choose this repository's
+`.venv/bin/python`; the editor's interpreter selection is separate from shell
+activation.
 
 ## ROS builds on the target Linux environment
 
@@ -93,6 +99,10 @@ node exit handling, disarmed recovery, hardware permissions, and bounded recordi
 remain implementation requirements. These templates do not establish them.
 
 ## Validation record
+
+Dependency setup on 2026-10-27: MuJoCo 3.16.0 installed and imported successfully
+in the repository's macOS ARM64/Python 3.12 environment. `uv pip check` passed.
+This verifies dependency installation, not simulator physics or rendering.
 
 Local scaffold verification on 2026-10-24:
 

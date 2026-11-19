@@ -7,7 +7,8 @@ explicitly installs the standalone Python package and its current asset notes.
 All recipes require `--build-arg ROS_BASE_IMAGE=...`. Supply an inspected ROS Jazzy
 base with Ubuntu 24.04/Python 3.12 and pin its digest for releases. No NVIDIA tag,
 registry, JetPack compatibility, GPU runtime, or vendor driver pin is invented here.
-The current scaffold contains no MuJoCo runtime dependency or Isaac ROS pipeline.
+The simulation Python project now declares MuJoCo 3.16.0, which its image build
+installs. Container integration is unverified; no Isaac ROS pipeline is included.
 
 ```sh
 docker build -f deploy/docker/autonomy.Dockerfile \

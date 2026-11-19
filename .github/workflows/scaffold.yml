@@ -22,6 +22,6 @@ jobs:
       - name: Verify standalone import outside the checkout
         run: |
           python -m venv /tmp/kart-import
-          /tmp/kart-import/bin/python -m pip install --no-deps /tmp/kart-wheels/*.whl
+          /tmp/kart-import/bin/python -m pip install /tmp/kart-wheels/*.whl
           cd /tmp
-          /tmp/kart-import/bin/python -c "import sim"
+          /tmp/kart-import/bin/python -c "import sim, mujoco; print(mujoco.__version__)"
