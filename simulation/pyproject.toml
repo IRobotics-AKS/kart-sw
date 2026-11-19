@@ -14,6 +14,7 @@ dependencies = ["mujoco==3.16.0"]
 where = ["src"]
 
 [tool.setuptools.data-files]
-"share/sim/models/dreamer" = ["models/dreamer/README.md"]
+"share/sim/models/dreamer" = ["models/dreamer/README.md", "models/dreamer/kart.xml"]
+"share/sim/models/dreamer/assets" = ["models/dreamer/assets/brake_rotor.stl", "models/dreamer/assets/caliper.stl", "models/dreamer/assets/engine_mount.stl", "models/dreamer/assets/frame.stl", "models/dreamer/assets/hub_rear.stl", "models/dreamer/assets/rim_front.stl", "models/dreamer/assets/rim_rear.stl", "models/dreamer/assets/sprocket_hub.stl", "models/dreamer/assets/tyre_front.stl", "models/dreamer/assets/tyre_rear.stl"]
 "share/sim/worlds" = ["worlds/README.md"]
 "share/sim/config" = ["config/README.md"]
