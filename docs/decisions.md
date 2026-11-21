@@ -62,7 +62,7 @@ validation result. Recheck compatibility before installing or publishing images.
 
 | Component | Proposed baseline | Qualification |
 | --- | --- | --- |
-| MuJoCo | `3.16.0` | Pin exactly when implementation begins; test physics and rendering |
+| MuJoCo | `3.16.0` | Pinned in Python metadata; macOS import verified; physics and rendering pending |
 | ROS 2 | Jazzy | Keep simulation and Jetson on the same distribution |
 | Isaac ROS | `4.6.0` | Optional selected perception packages; not needed by the simulation core |
 | JetPack | `7.2` compatibility baseline | User specified only 7.x; hardware/carrier and patch release need confirmation |
@@ -107,6 +107,11 @@ References checked during the discussion:
 10. Which Isaac ROS packages are actually needed for the chosen perception stack?
 
 ## Implementation status
+
+Dependency setup, 2026-10-27: added MuJoCo 3.16.0 to the standalone simulator's
+Python dependencies and installed it in the existing repository-level environment.
+Import succeeded on macOS ARM64/Python 3.12, and the installed dependency check
+passed. ROS, container, physics, and rendering validation remain separate work.
 
 Layout update, 2026-10-27: the user requested removing the redundant standalone
 project directory beneath `simulation/`. Its `pyproject.toml`, assets, tests, and
