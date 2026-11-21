@@ -36,3 +36,6 @@ supervisor sessions on reset, and measure pacing against a monotonic wall clock.
 The wheel installs the current asset notes under `share/sim/` in the install
 prefix. Update the explicit data-file lists when adding MJCF/assets and check
 their presence in a built wheel; an editable install alone does not verify this.
+
+`studies/camera_placement/` holds the camera mounting study (library code in
+`src/sim/camplace/`). See its README for the result and how to rerun it.

@@ -31,3 +31,5 @@ datasets/
 .DS_Store
 .idea/
 .vscode/
+# Study outputs (rerun to regenerate)
+simulation/studies/*/runs/
