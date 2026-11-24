@@ -1,18 +1,19 @@
 # kart-sw
 
-Monorepo scaffold for the autonomous Top Kart Dreamer: a ROS-independent MuJoCo
-core, ROS 2 autonomy, physical integration, separate MCU firmware, and deployment.
+Monorepo for the autonomous Top Kart Dreamer: a ROS-independent MuJoCo core,
+ROS 2 packages, separate MCU firmware, and deployment templates.
 
-The package/build structure is present. Physics, models, shared command messages,
-runtime nodes, calibrated geometry, and firmware are still to be implemented.
-Launch files expose their intended arguments and explicitly refuse execution
-until those components exist. This checkout does not drive a simulated or real kart.
+A MuJoCo runtime and ROS bridge now run a synthetic test body, publish clock/IMU/
+truth, and accept simulation-only joint efforts. See the [bridge runbook](src/simulation/sim_ros/README.md)
+for build and launch commands. Calibrated kart dynamics, production command
+contracts, autonomy integration and firmware remain pending. Autonomy/hardware
+launch are still guarded. This is not a simulated or real autonomous kart yet.
 
 ## Layout
 
 | Directory | Responsibility |
 | --- | --- |
-| `simulation/` | Standalone Python simulation package and future MuJoCo assets |
+| `simulation/` | Standalone MuJoCo runtime and synthetic bridge test model |
 | `src/common/` | Shared ROS interface and vehicle-description skeletons |
 | `src/simulation/` | ROS adapter for the standalone simulator |
 | `src/autonomy/` | Perception, localization, planning, and control |

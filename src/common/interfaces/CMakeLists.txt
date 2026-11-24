@@ -3,12 +3,13 @@ project(interfaces)
 
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(builtin_interfaces REQUIRED)
 
-# Add reviewed msg/*.msg and srv/*.srv paths here, plus their dependencies.
-# An empty list is intentional: actuator and status semantics are unresolved.
-set(interface_files)
+# The production actuator/status contract remains unresolved.
+set(interface_files "msg/SimActuatorCommand.msg")
 if(interface_files)
-  rosidl_generate_interfaces(${PROJECT_NAME} ${interface_files})
+  rosidl_generate_interfaces(${PROJECT_NAME} ${interface_files}
+    DEPENDENCIES builtin_interfaces)
   ament_export_dependencies(rosidl_default_runtime)
 endif()
 

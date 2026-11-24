@@ -25,3 +25,12 @@ jobs:
           /tmp/kart-import/bin/python -m pip install /tmp/kart-wheels/*.whl
           cd /tmp
           /tmp/kart-import/bin/python -c "import sim, mujoco; print(mujoco.__version__)"
+
+      - name: Test MuJoCo runtime and command validity
+        run: |
+          PYTHONPATH=simulation/src /tmp/kart-import/bin/python -m unittest discover -s simulation/tests -v
+          PYTHONPATH=simulation/src:src/simulation/sim_ros /tmp/kart-import/bin/python -m unittest discover -s src/simulation/sim_ros/tests -v
+      - name: Smoke-test installed simulator assets outside checkout
+        run: |
+          cd /tmp
+          /tmp/kart-import/bin/python -m sim --model demo --duration 0.1

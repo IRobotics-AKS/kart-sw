@@ -1,6 +1,22 @@
 # Docker deployment design
 
-Updated: 2026-10-24. This document specifies the target deployment. Dockerfiles
+## Implemented simulation bridge (2026-11-24)
+
+The user requested a runnable simulation bridge and explicitly selected a
+separate simulation-only actuator input. `simulation/src/sim/runtime.py` now
+loads/steps/resets MuJoCo with a packaged synthetic test body. `sim_ros` publishes
+`/clock`, IMU and evaluation truth, and accepts bounded direct motor efforts on
+`sim/actuator_command` using `interfaces/msg/SimActuatorCommand`. These test-only
+commands are never published on `vehicle/command` and do not settle the physical
+actuator boundary. The demo is not a calibrated kart or a speed-controlled plant.
+
+Simulation bringup now launches the bridge with an explicit model/config; autonomy
+and hardware bringup remain guarded. GNSS, cameras, estimated state, production
+commands/status, the vehicle manager, kart geometry and physical integration are
+still pending. See [bridge runbook](../src/simulation/sim_ros/README.md) for commands,
+frames, QoS, simulation/wall timing, validity, pause/reset and verification limits.
+
+Updated: 2026-11-24. This document specifies the target deployment. Dockerfiles
 and Compose templates now exist and pass static/configuration checks. No images
 have been built, runtime deployments validated, or boot units implemented.
 See [architecture.md](architecture.md) and [ROS structure](ros-structure.md).

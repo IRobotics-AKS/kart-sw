@@ -1,6 +1,22 @@
 # Decisions and open questions
 
-Recorded: 2026-10-21; updated: 2026-10-27. The finalized project design now uses
+## Implemented simulation bridge (2026-11-24)
+
+The user requested a runnable simulation bridge and explicitly selected a
+separate simulation-only actuator input. `simulation/src/sim/runtime.py` now
+loads/steps/resets MuJoCo with a packaged synthetic test body. `sim_ros` publishes
+`/clock`, IMU and evaluation truth, and accepts bounded direct motor efforts on
+`sim/actuator_command` using `interfaces/msg/SimActuatorCommand`. These test-only
+commands are never published on `vehicle/command` and do not settle the physical
+actuator boundary. The demo is not a calibrated kart or a speed-controlled plant.
+
+Simulation bringup now launches the bridge with an explicit model/config; autonomy
+and hardware bringup remain guarded. GNSS, cameras, estimated state, production
+commands/status, the vehicle manager, kart geometry and physical integration are
+still pending. See [bridge runbook](../src/simulation/sim_ros/README.md) for commands,
+frames, QoS, simulation/wall timing, validity, pause/reset and verification limits.
+
+Recorded: 2026-10-21; updated: 2026-11-24. The finalized project design now uses
 a monorepo. Distinguish architecture decisions, unresolved hardware/version
 choices, and implemented/verified software.
 
@@ -154,9 +170,9 @@ Static dependency checks and Compose rendering checks pass. ROS/ament/colcon are
 not installed locally and the Docker daemon is unavailable, so ROS builds, launch
 execution, container builds, and runtime integration are not verified here.
 
-MuJoCo integration, shared message definitions, calibrated description, executable
-nodes, MCU firmware, and control integration remain unimplemented. All launch
-entry points fail explicitly before starting processes. Live mode exclusion,
+The MuJoCo bridge and simulation-only command message are implemented as described
+above. Production shared messages, calibrated description, MCU firmware and
+closed-loop autonomy integration remain unimplemented. Autonomy and hardware launch entry points still fail explicitly before starting processes. Live mode exclusion,
 readiness, arming, restart policy, and physical device mappings remain future work.
 No software candidate has been promoted to a validated release pin. License and
 maintainer metadata are explicit placeholders pending project-owner decisions.
