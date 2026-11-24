@@ -8,7 +8,7 @@ device is installed, configured, or tested. Quantities below come from the image
 
 | Component | Quantity | Role / status |
 | --- | --- | --- |
-| NVIDIA Jetson Orin Nano Super Developer Kit | 1 | Onboard autonomy computer; exact installed JetPack and storage unknown |
+| NVIDIA Jetson Orin Nano Super Developer Kit | 1 | Confirmed on the real kart (2026-11-24); exact installed JetPack and storage unknown |
 | Luxonis OAK-D S2 | 1 | Front camera |
 | Luxonis OAK-1 Lite | 2 | Side cameras; individual mounting transforms and device identifiers pending |
 | BNO055 Absolute Orientation IMU Fusion Breakout | 1 | IMU; exact breakout manufacturer/revision and connection pending |
@@ -51,5 +51,6 @@ the Jetson/OAK pipeline. This is not a decision to permanently exclude it.
   station, and delivery path for corrections.
 - Whether the Coral is actually needed, its exact variant, and its workload.
 
-This inventory does not change the provisional software version baseline or
-constitute a validated ROS/Isaac ROS integration.
+The user confirmed on 2026-11-24 that a real Jetson Orin Nano is on the kart.
+The current Docker task targets developer Mac workstations only. This confirms
+the on-kart computer, not its JetPack installation or ROS/Isaac ROS integration.

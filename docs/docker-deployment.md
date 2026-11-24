@@ -1,5 +1,36 @@
 # Docker deployment design
 
+## Local Mac workstation simulation (2026-11-24)
+
+The user confirmed the real Jetson Orin Nano is on the kart. The current Docker
+work is exclusively a portable local workstation workflow, including other team
+members' Apple Silicon and Intel Macs. `tools/sim-docker` selects only
+`deploy/compose/workstation-local.yaml`: headless MuJoCo plus the ROS bridge in
+one native-architecture CPU container with localhost-only ROS. There is no
+connection to the Jetson or physical command path. Jetson live/remote-simulation
+configuration remains separate future integration work. See the
+[workstation runbook](../deploy/README.md) for setup, commands and scope.
+
+## Workstation verification (2026-11-24)
+
+On this Apple Silicon Mac with Docker Desktop Engine 29.8.2 / Compose 5.5.1:
+
+- Built the pinned-base image natively for Linux arm64 and under emulation for
+  Linux amd64; both installed MuJoCo and built all three simulation ROS packages.
+- On each architecture, all 21 core/command/real ROS integration tests passed
+  with no ROS skips. The installed demo asset also ran outside the source tree.
+- Both launched containers became healthy and passed checks for advancing clock,
+  IMU, evaluation truth and session data. The demo sender and pause/reset/resume
+  services ran successfully; the second smoke check passed after reset/resume.
+  Validation containers were then stopped and removed.
+- Four wrapper tests passed (alternate working directory, spaces in checkout
+  paths, literal argument handling, daemon failure and reset sequencing).
+  Compose isolation and existing deployment-template checks passed.
+
+Actual Intel Mac hardware and other teammates' workstations have not been tested
+here. The native amd64/arm64 GitHub Actions matrix is added but has not run remotely.
+GUI rendering and Jetson/live deployment are not validated by these checks.
+
 ## Implemented simulation bridge (2026-11-24)
 
 The user requested a runnable simulation bridge and explicitly selected a
@@ -16,9 +47,10 @@ commands/status, the vehicle manager, kart geometry and physical integration are
 still pending. See [bridge runbook](../src/simulation/sim_ros/README.md) for commands,
 frames, QoS, simulation/wall timing, validity, pause/reset and verification limits.
 
-Updated: 2026-11-24. This document specifies the target deployment. Dockerfiles
-and Compose templates now exist and pass static/configuration checks. No images
-have been built, runtime deployments validated, or boot units implemented.
+Updated: 2026-11-24. The local workstation image has been built and its headless
+ROS/MuJoCo runtime tested on Docker Desktop for Apple Silicon. The other Dockerfiles
+and distributed/live Compose files remain target templates. No Jetson deployment
+or boot unit has been implemented or validated.
 See [architecture.md](architecture.md) and [ROS structure](ros-structure.md).
 
 ## Host and image responsibilities

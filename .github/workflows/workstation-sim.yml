@@ -1,0 +1,45 @@
+name: Workstation simulation
+
+on:
+  push:
+    paths: ['simulation/**', 'src/common/interfaces/**', 'src/simulation/**', 'src/bringup/sim_bringup/**', 'deploy/**', 'tools/**', '.dockerignore', '.github/workflows/workstation-sim.yml']
+  pull_request:
+    paths: ['simulation/**', 'src/common/interfaces/**', 'src/simulation/**', 'src/bringup/sim_bringup/**', 'deploy/**', 'tools/**', '.dockerignore', '.github/workflows/workstation-sim.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  simulation:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check portable wrapper and Compose isolation
+        run: |
+          python3 tools/check_workstation_deploy.py
+          python3 -m unittest discover -s tools/tests -v
+          bash -n tools/sim-docker deploy/docker/test-simulation.sh
+      - name: Build and run core plus real ROS integration tests
+        run: tools/sim-docker test
+      - name: Start installed simulator and check ROS data
+        run: |
+          tools/sim-docker up
+          tools/sim-docker smoke
+          tools/sim-docker demo
+          tools/sim-docker reset
+          tools/sim-docker resume
+          tools/sim-docker smoke
+      - name: Container diagnostics
+        if: always()
+        run: |
+          tools/sim-docker status
+          tools/sim-docker logs
+      - name: Stop workstation simulation
+        if: always()
+        run: tools/sim-docker down

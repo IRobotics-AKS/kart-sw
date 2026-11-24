@@ -5,6 +5,12 @@ publishes simulated IMU readings, evaluation truth and `/clock`, and accepts
 **simulation-only joint efforts**. The included demo is a falling/sliding box
 with a yaw joint, not a calibrated Top Kart model or an autonomy demonstration.
 
+## Docker on Mac workstations
+
+From the repository root, use `./tools/sim-docker up` and then
+`./tools/sim-docker smoke`. See the [workstation runbook](../../../deploy/README.md).
+This runs the simulator and ROS together without a host ROS installation.
+
 ## Run on Ubuntu with ROS 2 Jazzy
 
 From the **repository root** (`kart-sw`, not `kart-sw/src`), after installing
@@ -28,7 +34,8 @@ For a desktop viewer add `rendering:=true` (requires a working desktop/OpenGL).
 Headless is the default. Select `model:=/absolute/path/to/model.xml` and a reviewed
 parameter file for a different model. No model/config is silently selected.
 Autonomy and hardware bringup remain guarded; do not start them for this demo.
-Existing Compose templates still need explicit model/config arguments and mounts.
+The local workstation Compose workflow supplies the packaged demo model/config;
+the older Linux/distributed templates still require configuration.
 
 In another terminal, source the same ROS, virtualenv and workspace environments:
 

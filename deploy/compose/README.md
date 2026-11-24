@@ -1,5 +1,9 @@
 # Host deployment templates
 
+For the runnable local Mac workflow use `tools/sim-docker`, which selects only
+`workstation-local.yaml`. See [workstation setup](../README.md). The table below
+describes separate Linux/distributed target templates, not the local Mac entry point.
+
 | File | Host | Default services |
 | --- | --- | --- |
 | workstation-sim.yaml | Workstation | simulation, autonomy |

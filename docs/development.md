@@ -1,4 +1,10 @@
-# Developing the scaffold
+# Development
+
+## Docker on Mac workstations
+
+Use `./tools/sim-docker up` from the repository root, then
+`./tools/sim-docker smoke`. Docker Desktop supplies the Linux/ROS environment;
+no host ROS installation is needed. See [the runbook](../deploy/README.md).
 
 ## Implemented simulation bridge (2026-11-24)
 

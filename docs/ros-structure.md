@@ -21,6 +21,12 @@ have installation metadata. The bridge and debug pure-pursuit node are implement
 production interfaces in the target topic table remain proposed. The current
 simulation-only command topic is specified in the bridge runbook.
 
+## Local workstation transport
+
+`tools/sim-docker` runs the simulator/bridge and ROS CLI in the same container,
+with localhost-only discovery and no external network. This is local workstation
+simulation, not a workstation-to-Jetson ROS graph. See [setup](../deploy/README.md).
+
 ## Packages and runtime responsibilities
 
 | Package | Responsibility / expected runtime |

@@ -9,6 +9,20 @@ for build and launch commands. Calibrated kart dynamics, production command
 contracts, autonomy integration and firmware remain pending. Autonomy/hardware
 launch are still guarded. This is not a simulated or real autonomous kart yet.
 
+## Run the workstation simulator
+
+Install/open Docker Desktop, then run from the repository root:
+
+```bash
+./tools/sim-docker up
+./tools/sim-docker smoke
+./tools/sim-docker down
+```
+
+This runs the headless test simulator and ROS bridge locally on Apple Silicon or
+Intel Macs. It does not connect to the real Jetson on the kart. See
+[workstation setup](deploy/README.md) for commands, testing and limitations.
+
 ## Layout
 
 | Directory | Responsibility |

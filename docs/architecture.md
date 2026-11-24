@@ -1,5 +1,16 @@
 # Finalized project structure: kart monorepo
 
+## Local Mac workstation simulation (2026-11-24)
+
+The user confirmed the real Jetson Orin Nano is on the kart. The current Docker
+work is exclusively a portable local workstation workflow, including other team
+members' Apple Silicon and Intel Macs. `tools/sim-docker` selects only
+`deploy/compose/workstation-local.yaml`: headless MuJoCo plus the ROS bridge in
+one native-architecture CPU container with localhost-only ROS. There is no
+connection to the Jetson or physical command path. Jetson live/remote-simulation
+configuration remains separate future integration work. See the
+[workstation runbook](../deploy/README.md) for setup, commands and scope.
+
 ## Implemented simulation bridge (2026-11-24)
 
 The user requested a runnable simulation bridge and explicitly selected a

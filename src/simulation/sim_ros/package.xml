@@ -6,7 +6,6 @@
   <!-- Replace publication metadata once ownership and licensing are decided. -->
   <maintainer email="maintainers@example.invalid">Kart maintainers</maintainer>
   <license>TODO</license>
-  <buildtool_depend>ament_python</buildtool_depend>
   <exec_depend>interfaces</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>rcl_interfaces</exec_depend>
