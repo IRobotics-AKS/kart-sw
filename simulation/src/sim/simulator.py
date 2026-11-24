@@ -1,127 +1,31 @@
+"""Open the Dreamer kart model in the MuJoCo viewer.
+
+The model lives in simulation/models/dreamer/kart.xml (meshes in its assets/ folder),
+so there is one copy of it. Run from the repository root:
+
+    .venv/bin/python simulation/src/sim/simulator.py
+"""
+import pathlib
+
 import mujoco
 import mujoco.viewer
 
+MODEL = pathlib.Path(__file__).resolve().parents[2] / "models" / "dreamer" / "kart.xml"
 
-xml = """
-<mujoco model="dreamer_prototype">
-  <compiler angle="radian"/>
-  <option timestep="0.002" gravity="0 0 -9.81" integrator="implicitfast"/>
-  <statistic center="0.45 0 0.25" extent="2.5"/>
-  <visual>
-    <headlight diffuse="0.7 0.7 0.7" ambient="0.3 0.3 0.3"/>
-    <rgba haze="0.15 0.2 0.3 1"/>
-  </visual>
-  <asset>
-    <texture name="ground_grid" type="2d" builtin="checker"
-             rgb1="0.24 0.27 0.30" rgb2="0.34 0.37 0.40" width="512" height="512"/>
-    <material name="ground" texture="ground_grid" texrepeat="12 12" texuniform="true"/>
-    <material name="frame_blue" rgba="0.02 0.18 0.75 1" specular="0.6"/>
-    <material name="body_blue" rgba="0.03 0.28 0.9 1"/>
-    <material name="yellow" rgba="1 0.85 0.03 1"/>
-    <material name="rubber" rgba="0.035 0.035 0.04 1"/>
-    <material name="metal" rgba="0.65 0.68 0.72 1" specular="0.8"/>
-    <material name="seat" rgba="0.12 0.13 0.15 1"/>
-  </asset>
-  <default>
-    <joint damping="0.02"/>
-    <!-- Visual pieces have no collision or inferred mass. Each moving body
-         has an explicit, provisional inertia; only tires and floor collide. -->
-    <geom contype="0" conaffinity="0" mass="0"/>
-    <default class="tube">
-      <geom type="capsule" size="0.015" material="frame_blue"/>
-    </default>
-    <default class="tire">
-      <geom type="cylinder" euler="1.57079632679 0 0" material="rubber"
-            contype="1" conaffinity="1" condim="4" friction="0.9 0.005 0.0001"/>
-    </default>
-    <default class="rim">
-      <geom type="cylinder" euler="1.57079632679 0 0" material="metal"/>
-    </default>
-  </default>
-  <worldbody>
-    <light pos="0 0 4" dir="0 0 -1" directional="true"/>
-    <geom name="floor" type="plane" size="10 10 0.1" material="ground"
-          contype="1" conaffinity="1"/>
-    <camera name="overview" pos="2.6 -2.8 1.8" xyaxes="0.8 0.6 0 -0.3 0.4 0.866"/>
-    <body name="chassis" pos="0 0 0.16">
-      <freejoint name="chassis_free"/>
-      <inertial pos="0.40 0 0.08" mass="65" diaginertia="7 12 16"/>
 
-      <!-- Main rails, crossmembers, and floor pan. -->
-      <geom class="tube" fromto="-0.12 0.30 -0.035 0.80 0.30 -0.035"/>
-      <geom class="tube" fromto="-0.12 -0.30 -0.035 0.80 -0.30 -0.035"/>
-      <geom class="tube" fromto="0.80 0.30 -0.035 1.10 0.40 -0.035"/>
-      <geom class="tube" fromto="0.80 -0.30 -0.035 1.10 -0.40 -0.035"/>
-      <geom class="tube" fromto="-0.12 -0.30 -0.035 -0.12 0.30 -0.035"/>
-      <geom class="tube" fromto="0.40 -0.30 -0.035 0.40 0.30 -0.035"/>
-      <geom class="tube" fromto="1.10 -0.40 -0.035 1.10 0.40 -0.035"/>
-      <geom name="floor_pan" type="box" pos="0.65 0 -0.045" size="0.40 0.29 0.008" material="metal"/>
+def load(path=MODEL):
+    """(model, data) for the kart.xml at path."""
+    model = mujoco.MjModel.from_xml_path(str(path))
+    return model, mujoco.MjData(model)
 
-      <!-- Simplified bodywork, side pods, and bumper tubes. -->
-      <geom name="nose" type="ellipsoid" pos="1.30 0 0.04" size="0.18 0.53 0.10" material="body_blue"/>
-      <geom name="nose_stripe" type="box" pos="1.34 0 0.125" size="0.10 0.18 0.008" material="yellow"/>
-      <geom name="left_pod" type="box" pos="0.47 0.48 0.02" size="0.34 0.10 0.09" material="body_blue"/>
-      <geom name="right_pod" type="box" pos="0.47 -0.48 0.02" size="0.34 0.10 0.09" material="body_blue"/>
-      <geom type="box" pos="0.47 0.585 0.04" size="0.25 0.004 0.035" material="yellow"/>
-      <geom type="box" pos="0.47 -0.585 0.04" size="0.25 0.004 0.035" material="yellow"/>
-      <geom class="tube" fromto="-0.24 -0.56 0 -0.24 0.56 0" material="rubber" size="0.025"/>
 
-      <!-- Seat and cosmetic steering column/wheel. -->
-      <geom name="seat_base" type="box" pos="0.23 0 0.04" size="0.19 0.19 0.025" material="seat"/>
-      <geom name="seat_back" type="box" pos="0.03 0 0.23" euler="0 -0.20 0" size="0.025 0.20 0.22" material="seat"/>
-      <geom type="box" pos="0.22 0.20 0.10" size="0.19 0.02 0.07" material="seat"/>
-      <geom type="box" pos="0.22 -0.20 0.10" size="0.19 0.02 0.07" material="seat"/>
-      <geom type="capsule" fromto="0.85 0 -0.01 0.62 0 0.36" size="0.012" material="metal"/>
-      <body name="steering_wheel_visual" pos="0.62 0 0.36" euler="0 -0.55 0">
-        <geom type="capsule" fromto="-0.10 -0.10 0 -0.10 0.10 0" size="0.014" material="rubber"/>
-        <geom type="capsule" fromto="-0.10 0.10 0 0.10 0.10 0" size="0.014" material="rubber"/>
-        <geom type="capsule" fromto="0.10 0.10 0 0.10 -0.10 0" size="0.014" material="rubber"/>
-        <geom type="capsule" fromto="0.10 -0.10 0 -0.10 -0.10 0" size="0.014" material="rubber"/>
-        <geom type="capsule" fromto="0 -0.10 0 0 0.10 0" size="0.009" material="metal"/>
-      </body>
+def main():
+    model, data = load()
+    with mujoco.viewer.launch_passive(model, data) as viewer:
+        while viewer.is_running():
+            mujoco.mj_step(model, data)
+            viewer.sync()
 
-      <!-- Rear wheels share one rigid axle rotation; no differential. -->
-      <body name="rear_axle">
-        <inertial pos="0 0 0" mass="8" diaginertia="2.9 0.09 2.9"/>
-        <joint name="rear_axle_spin" type="hinge" axis="0 1 0"/>
-        <geom type="capsule" fromto="0 -0.60 0 0 0.60 0" size="0.022" material="metal"/>
-        <geom name="rear_left_tire" class="tire" pos="0 0.60 0" size="0.14 0.10"/>
-        <geom name="rear_right_tire" class="tire" pos="0 -0.60 0" size="0.14 0.10"/>
-        <geom class="rim" pos="0 0.60 0" size="0.075 0.102"/>
-        <geom class="rim" pos="0 -0.60 0" size="0.075 0.102"/>
-      </body>
 
-      <!-- Independent passive steering pivots; no Ackermann linkage yet.
-           No steering stops are asserted until the real geometry is known. -->
-      <body name="front_left_knuckle" pos="1.04 0.55 0">
-        <inertial pos="0 0 0" mass="0.5" diaginertia="0.002 0.002 0.002"/>
-        <joint name="front_left_steer" type="hinge" axis="0 0 1" damping="0.2"/>
-        <body name="front_left_wheel">
-          <inertial pos="0 0 0" mass="2" diaginertia="0.012 0.018 0.012"/>
-          <joint name="front_left_spin" type="hinge" axis="0 1 0"/>
-          <geom name="front_left_tire" class="tire" size="0.14 0.065"/>
-          <geom class="rim" size="0.075 0.067"/>
-        </body>
-      </body>
-      <body name="front_right_knuckle" pos="1.04 -0.55 0">
-        <inertial pos="0 0 0" mass="0.5" diaginertia="0.002 0.002 0.002"/>
-        <joint name="front_right_steer" type="hinge" axis="0 0 1" damping="0.2"/>
-        <body name="front_right_wheel">
-          <inertial pos="0 0 0" mass="2" diaginertia="0.012 0.018 0.012"/>
-          <joint name="front_right_spin" type="hinge" axis="0 1 0"/>
-          <geom name="front_right_tire" class="tire" size="0.14 0.065"/>
-          <geom class="rim" size="0.075 0.067"/>
-        </body>
-      </body>
-    </body>
-  </worldbody>
-</mujoco>
-"""
-
-model = mujoco.MjModel.from_xml_string(xml)
-data = mujoco.MjData(model)
-
-with mujoco.viewer.launch_passive(model, data) as viewer:
-    while viewer.is_running():
-        mujoco.mj_step(model, data)
-        viewer.sync()
+if __name__ == "__main__":
+    main()
