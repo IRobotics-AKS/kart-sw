@@ -1,0 +1,15 @@
+# Synthetic bridge-test values, NOT calibrated kart or BNO055 configuration.
+# The wildcard allows a user-selected ROS namespace.
+/**:
+  ros__parameters:
+    body: base_link
+    accelerometer: imu_accel
+    gyro: imu_gyro
+    world_frame: sim_world
+    body_frame: base_link
+    imu_frame: imu_link
+    accel_noise_std: 0.02  # m/s^2 per axis/sample
+    gyro_noise_std: 0.001  # rad/s per axis/sample
+    start_paused: false
+    command_timeout_s: 0.25  # test-only maximum command validity in simulation seconds
+    wall_timeout_s: 0.5  # test-only maximum time since acceptance, monotonic wall seconds

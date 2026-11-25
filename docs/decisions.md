@@ -1,6 +1,33 @@
 # Decisions and open questions
 
-Recorded: 2026-10-21; updated: 2026-10-27. The finalized project design now uses
+## Local Mac workstation simulation (2026-11-24)
+
+The user confirmed the real Jetson Orin Nano is on the kart. The current Docker
+work is exclusively a portable local workstation workflow, including other team
+members' Apple Silicon and Intel Macs. `tools/sim-docker` selects only
+`deploy/compose/workstation-local.yaml`: headless MuJoCo plus the ROS bridge in
+one native-architecture CPU container with localhost-only ROS. There is no
+connection to the Jetson or physical command path. Jetson live/remote-simulation
+configuration remains separate future integration work. See the
+[workstation runbook](../deploy/README.md) for setup, commands and scope.
+
+## Implemented simulation bridge (2026-11-24)
+
+The user requested a runnable simulation bridge and explicitly selected a
+separate simulation-only actuator input. `simulation/src/sim/runtime.py` now
+loads/steps/resets MuJoCo with a packaged synthetic test body. `sim_ros` publishes
+`/clock`, IMU and evaluation truth, and accepts bounded direct motor efforts on
+`sim/actuator_command` using `interfaces/msg/SimActuatorCommand`. These test-only
+commands are never published on `vehicle/command` and do not settle the physical
+actuator boundary. The demo is not a calibrated kart or a speed-controlled plant.
+
+Simulation bringup now launches the bridge with an explicit model/config; autonomy
+and hardware bringup remain guarded. GNSS, cameras, estimated state, production
+commands/status, the vehicle manager, kart geometry and physical integration are
+still pending. See [bridge runbook](../src/simulation/sim_ros/README.md) for commands,
+frames, QoS, simulation/wall timing, validity, pause/reset and verification limits.
+
+Recorded: 2026-10-21; updated: 2026-11-24. The finalized project design now uses
 a monorepo. Distinguish architecture decisions, unresolved hardware/version
 choices, and implemented/verified software.
 
@@ -123,6 +150,17 @@ algorithms/` and is covered by tests that need no ROS environment. CI does not
 run those tests yet. `geometry_msgs` was added to the external dependency
 allowlist in `tools/check_scaffold.py` so the debug path can be published.
 
+Control update, 2026-11-10: the first executable node landed. `control` now
+installs a `pure_pursuit_node` console script that tracks a pre-calculated
+route read from a CSV and publishes the selected lookahead point on
+`control/debug/lookahead` for inspection. It publishes no actuator command,
+because open question 7 below leaves the command boundary undecided, and it
+has no parameter defaults, because the kart is unmeasured; it refuses to start
+rather than run on plausible numbers. Decision logic lives in `control/
+algorithms/` and is covered by tests that need no ROS environment. CI does not
+run those tests yet. `geometry_msgs` was added to the external dependency
+allowlist in `tools/check_scaffold.py` so the debug path can be published.
+
 Layout update, 2026-10-27: the user requested removing the redundant standalone
 project directory beneath `simulation/`. Its `pyproject.toml`, assets, tests, and
 `src/sim/` now live directly under `simulation/`. The import remains `sim`;
@@ -153,9 +191,9 @@ Static dependency checks and Compose rendering checks pass. ROS/ament/colcon are
 not installed locally and the Docker daemon is unavailable, so ROS builds, launch
 execution, container builds, and runtime integration are not verified here.
 
-MuJoCo integration, shared message definitions, calibrated description, executable
-nodes, MCU firmware, and control integration remain unimplemented. All launch
-entry points fail explicitly before starting processes. Live mode exclusion,
+The MuJoCo bridge and simulation-only command message are implemented as described
+above. Production shared messages, calibrated description, MCU firmware and
+closed-loop autonomy integration remain unimplemented. Autonomy and hardware launch entry points still fail explicitly before starting processes. Live mode exclusion,
 readiness, arming, restart policy, and physical device mappings remain future work.
 No software candidate has been promoted to a validated release pin. License and
 maintainer metadata are explicit placeholders pending project-owner decisions.

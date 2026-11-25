@@ -1,38 +1,32 @@
 # sim
 
-Standalone Python package for the future MuJoCo core. It currently installs an
-importable package, MuJoCo 3.16.0, and asset-directory notes; it has no simulator
-entry point, model, sensor generator, or command implementation.
+Standalone ROS-independent MuJoCo runtime. It loads MJCF, steps and resets the
+simulation, samples a co-located accelerometer/gyro with reproducible Gaussian
+noise, exposes evaluation truth, and applies explicit bounded joint motor efforts.
+The packaged `demo` is a synthetic box, not a calibrated kart model.
 
-From the repository root, with Python 3.12:
+From the repository root, using the existing Python 3.12 environment with MuJoCo:
 
-```sh
-python3.12 -m venv .venv
-.venv/bin/python -m pip install -e simulation
-.venv/bin/python -c "import sim; print(sim.__file__)"
+```bash
+PYTHONPATH=simulation/src .venv/bin/python -m sim --model demo --duration 5
+# macOS passive viewer requires MuJoCo's mjpython launcher:
+PYTHONPATH=simulation/src .venv/bin/mjpython -m sim --model demo --viewer --duration 30
 ```
 
-MuJoCo 3.16.0 is pinned in pyproject.toml. Installation and import were verified
-on macOS ARM64 with Python 3.12; physics, rendering, and deployment integration
-remain unverified.
-ROS is not required to build or import this scaffold. The ROS adapter belongs in
-`src/simulation/sim_ros`; firmware and physical communication do not belong here.
+For a new environment install the package with `python -m pip install -e simulation`.
+On Linux, `python -m sim --model demo --viewer --duration 30` runs the desktop
+viewer. Headless runs do not need a display. The standalone CLI explicitly uses
+zero sensor noise and zero motor effort; the ROS demo config adds synthetic noise.
 
-To refresh the existing repository environment after changing dependencies:
+`Simulation` requires explicit noise standard deviations and seed. Models must
+contain a configured body and same-site accelerometer/gyro. Motors, if present,
+must be named unit-gear hinge/slide motors with finite control limits containing
+zero. `set_efforts` takes a complete named vector (hinge Nm, slide N); it does not
+implement timing, arming, speed control or braking. The ROS bridge owns freshness,
+session and sequence checking before calling it. Reset restores initial model
+state, zeros controls and restarts the random seed.
 
-```sh
-uv pip install --python .venv/bin/python -e ./simulation
-.venv/bin/python -c "import mujoco; print(mujoco.__version__)"
-```
-
-In VS Code, select the repository's `.venv/bin/python` with
-`Python: Select Interpreter`. Terminal activation alone does not change an
-interpreter already selected by the editor.
-
-Add model loading, stepping, reset, and rendering before introducing a CLI. Keep
-measurement outputs separate from evaluation truth. Invalidate commands and
-supervisor sessions on reset, and measure pacing against a monotonic wall clock.
-
-The wheel installs the current asset notes under `share/sim/` in the install
-prefix. Update the explicit data-file lists when adding MJCF/assets and check
-their presence in a built wheel; an editable install alone does not verify this.
+MJCF worlds/geometry remain caller supplied. The real Dreamer model, sensor
+calibration, GNSS/camera simulation and physical actuator semantics are pending.
+See the [ROS bridge runbook](../src/simulation/sim_ros/README.md) for launch commands
+and the full measurement/command contract.

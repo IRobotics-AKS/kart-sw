@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sim"
 version = "0.0.0"
-description = "ROS-independent MuJoCo simulator scaffold for the Top Kart Dreamer"
+description = "ROS-independent MuJoCo runtime and synthetic bridge test model"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = ["mujoco==3.16.0"]
@@ -18,3 +18,6 @@ where = ["src"]
 "share/sim/models/dreamer/assets" = ["models/dreamer/assets/brake_rotor.stl", "models/dreamer/assets/caliper.stl", "models/dreamer/assets/engine_mount.stl", "models/dreamer/assets/frame.stl", "models/dreamer/assets/hub_rear.stl", "models/dreamer/assets/rim_front.stl", "models/dreamer/assets/rim_rear.stl", "models/dreamer/assets/sprocket_hub.stl", "models/dreamer/assets/tyre_front.stl", "models/dreamer/assets/tyre_rear.stl"]
 "share/sim/worlds" = ["worlds/README.md"]
 "share/sim/config" = ["config/README.md"]
+
+[tool.setuptools.package-data]
+sim = ["assets/*.xml"]

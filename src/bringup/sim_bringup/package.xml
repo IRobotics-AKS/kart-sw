@@ -2,7 +2,7 @@
 <package format="3">
   <name>sim_bringup</name>
   <version>0.0.0</version>
-  <description>Workstation MuJoCo adapter launch (scaffold; runtime pending).</description>
+  <description>Workstation MuJoCo bridge launch with simulation-only joint efforts.</description>
   <!-- Replace publication metadata once ownership and licensing are decided. -->
   <maintainer email="maintainers@example.invalid">Kart maintainers</maintainer>
   <license>TODO</license>

@@ -15,7 +15,10 @@ setup(
     zip_safe=False,
     maintainer="Kart maintainers",
     maintainer_email="maintainers@example.invalid",
-    description="ROS adapter for the standalone MuJoCo simulator (scaffold)",
+    description="ROS adapter for MuJoCo with simulation-only joint efforts",
     license="TODO",
-    entry_points={"console_scripts": []},
+    entry_points={"console_scripts": [
+        "sim_bridge = sim_ros.bridge_node:main",
+        "send_efforts = sim_ros.send_efforts:main",
+    ]},
 )

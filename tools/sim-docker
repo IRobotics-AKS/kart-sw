@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Bash 3.2-compatible entry point for Docker Desktop and native Linux Docker.
+set -euo pipefail
+ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
+PROJECT=${KART_SIM_PROJECT:-kart-sim-$(printf '%s' "$ROOT" | cksum | awk '{print $1}')}
+COMPOSE=(docker compose --project-name "$PROJECT"
+  --env-file /dev/null -f "$ROOT/deploy/compose/workstation-local.yaml")
+
+usage() {
+  cat <<'HELP'
+Usage: tools/sim-docker COMMAND [ARGS...]
+  up            Build and start headless MuJoCo + ROS; wait for clock health
+  build         Build the native-architecture workstation image
+  down          Stop/remove this checkout's simulation container
+  logs          Show recent logs; add --follow to keep streaming
+  status        Show container/health status
+  smoke         Check advancing clock, IMU, truth and session on the running sim
+  demo          Send the demo model a two-second simulation-only effort burst
+  pause         Freeze physics and invalidate old commands
+  reset         Pause, reset simulation to t=0, and leave it paused
+  resume        Resume physics (old commands stay invalid)
+  test          Run core and real ROS integration tests in a separate container
+  shell         Open a shell with ROS/workspace sourced in the running container
+  exec ARGS...  Run a command with ROS/workspace sourced in the running container
+  config        Render Compose configuration without contacting the daemon
+  doctor        Show Docker/Compose versions and daemon availability
+
+Docker Desktop must be running on Macs. No host ROS or Python installation is
+required. Run from any directory. This workflow is only for local simulation;
+it does not start autonomy, connect to the Jetson, or open a graphics window.
+HELP
+}
+
+command_name=${1:-help}
+if [[ $# -gt 0 ]]; then shift; fi
+case "$command_name" in help|-h|--help) usage; exit 0 ;; esac
+if ! [[ "$PROJECT" =~ ^[a-z0-9][a-z0-9_-]*$ ]]; then
+  echo 'KART_SIM_PROJECT must use lowercase letters, digits, underscores or hyphens.' >&2
+  exit 2
+fi
+if ! command -v docker >/dev/null 2>&1 || ! docker compose version >/dev/null 2>&1; then
+  echo 'Docker with Compose v2.20+ is required. On macOS, install and open Docker Desktop.' >&2
+  exit 1
+fi
+if [[ "$command_name" == config ]]; then
+  "${COMPOSE[@]}" config "$@"
+  exit
+fi
+if ! docker info >/dev/null 2>&1; then
+  echo 'Docker is not reachable. Open Docker Desktop, wait until it is running, and retry.' >&2
+  echo 'If Docker is running, check docker context ls and DOCKER_HOST.' >&2
+  exit 1
+fi
+run_in_sim() { "${COMPOSE[@]}" exec -T simulation kart-entrypoint "$@"; }
+case "$command_name" in
+  up) "${COMPOSE[@]}" up --build --detach --wait --wait-timeout 90 simulation ;;
+  build) "${COMPOSE[@]}" build simulation ;;
+  down) "${COMPOSE[@]}" down ;;
+  logs) "${COMPOSE[@]}" logs --tail 100 "$@" simulation ;;
+  status) "${COMPOSE[@]}" ps ;;
+  smoke) run_in_sim python /opt/kart/tools/sim_docker_smoke.py ;;
+  demo) run_in_sim ros2 run sim_ros send_efforts --effort x_force=10 --effort yaw_torque=0 --duration 2 --ros-args -r __ns:=/kart ;;
+  pause|reset)
+    run_in_sim ros2 service call /kart/sim/pause std_srvs/srv/SetBool '{data: true}'
+    if [[ "$command_name" == reset ]]; then
+      run_in_sim ros2 service call /kart/sim/reset std_srvs/srv/Trigger '{}'
+    fi ;;
+  resume) run_in_sim ros2 service call /kart/sim/pause std_srvs/srv/SetBool '{data: false}' ;;
+  test) "${COMPOSE[@]}" run --build --rm --no-deps -T -e ROS_DOMAIN_ID=77 simulation kart-test-simulation ;;
+  shell) "${COMPOSE[@]}" exec simulation kart-entrypoint bash --norc -i ;;
+  exec)
+    if [[ $# -eq 0 ]]; then echo 'exec needs a command, e.g. exec ros2 topic list --no-daemon' >&2; exit 2; fi
+    run_in_sim "$@" ;;
+  doctor) docker version; docker compose version; printf 'Compose project: %s\n' "$PROJECT" ;;
+  *) usage >&2; exit 2 ;;
+esac

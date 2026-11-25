@@ -28,7 +28,7 @@ DEPENDENCY_TAGS = {
 }
 EXTERNAL_DEPENDENCIES = {
     "ament_cmake", "ament_python", "geometry_msgs", "launch", "launch_ros",
-    "nav_msgs", "rclpy",
+    "nav_msgs", "rclpy", "rcl_interfaces", "std_srvs", "std_msgs", "builtin_interfaces",
     "robot_state_publisher", "rosgraph_msgs", "rosidl_default_generators",
     "rosidl_default_runtime", "sensor_msgs",
 }

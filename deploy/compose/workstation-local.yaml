@@ -1,0 +1,39 @@
+# Local workstation simulation only. This file never targets the kart/Jetson.
+services:
+  simulation:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/simulation.Dockerfile
+    # Let Docker choose native arm64 on Apple Silicon and amd64 on Intel.
+    init: true
+    network_mode: none
+    restart: "no"
+    stop_grace_period: 10s
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=256m,mode=1777
+    environment:
+      ROS_DOMAIN_ID: "41"
+      RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+      ROS_AUTOMATIC_DISCOVERY_RANGE: LOCALHOST
+      ROS_LOG_DIR: /tmp/ros/log
+      ROS_HOME: /tmp/ros
+      PYTHONDONTWRITEBYTECODE: "1"
+    command:
+      - ros2
+      - launch
+      - sim_bringup
+      - simulation.launch.py
+      - namespace:=kart
+      - use_sim_time:=true
+      - model:=${KART_SIM_MODEL:-demo}
+      - config_file:=${KART_SIM_CONFIG:-/opt/kart/install/sim_bringup/share/sim_bringup/config/bridge_demo.yaml}
+      - rendering:=false
+    healthcheck:
+      test: [CMD, kart-entrypoint, python, /opt/kart/tools/sim_docker_smoke.py, --health]
+      interval: 15s
+      timeout: 8s
+      start_period: 30s
+      retries: 3

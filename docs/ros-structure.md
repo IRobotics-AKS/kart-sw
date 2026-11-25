@@ -1,8 +1,31 @@
 # ROS 2 structure and interface contract
 
-Updated: 2026-10-24. Runtime contract targets for the monorepo. All 13 package
-skeletons now have installation metadata; nodes and custom messages below remain
-unimplemented. See [architecture.md](architecture.md).
+## Implemented simulation bridge (2026-11-24)
+
+The user requested a runnable simulation bridge and explicitly selected a
+separate simulation-only actuator input. `simulation/src/sim/runtime.py` now
+loads/steps/resets MuJoCo with a packaged synthetic test body. `sim_ros` publishes
+`/clock`, IMU and evaluation truth, and accepts bounded direct motor efforts on
+`sim/actuator_command` using `interfaces/msg/SimActuatorCommand`. These test-only
+commands are never published on `vehicle/command` and do not settle the physical
+actuator boundary. The demo is not a calibrated kart or a speed-controlled plant.
+
+Simulation bringup now launches the bridge with an explicit model/config; autonomy
+and hardware bringup remain guarded. GNSS, cameras, estimated state, production
+commands/status, the vehicle manager, kart geometry and physical integration are
+still pending. See [bridge runbook](../src/simulation/sim_ros/README.md) for commands,
+frames, QoS, simulation/wall timing, validity, pause/reset and verification limits.
+
+Updated: 2026-11-24. Runtime contract targets for the monorepo. All 13 packages
+have installation metadata. The bridge and debug pure-pursuit node are implemented;
+production interfaces in the target topic table remain proposed. The current
+simulation-only command topic is specified in the bridge runbook.
+
+## Local workstation transport
+
+`tools/sim-docker` runs the simulator/bridge and ROS CLI in the same container,
+with localhost-only discovery and no external network. This is local workstation
+simulation, not a workstation-to-Jetson ROS graph. See [setup](../deploy/README.md).
 
 ## Packages and runtime responsibilities
 
@@ -157,16 +180,16 @@ or faults must lead to defined behavior; the final brake/stop policy awaits hard
   correction settings, MCU transport, and live operation; reject simulation time
   for the physical actuator bridge.
 
-The three launch files now exist and install through ament_cmake. They declare
-their arguments for inspection with `ros2 launch ... --show-args`, but execution
-raises a scaffold error before starting any process. Simulation requires
+The three launch files install through ament_cmake. Simulation bringup now
+launches `sim_bridge` with an explicit model/configuration. Autonomy and hardware
+execution still raise scaffold errors before starting processes. Simulation requires
 `use_sim_time=true`; hardware rejects it. Autonomy declares both clock modes.
 No robot_state_publisher is launched until measured geometry is implemented.
 
 Python runtime packages install namespaces and package resources; `control`
 additionally installs the `pure_pursuit_node` console script, which tracks a
-route and publishes `control/debug/lookahead` but no actuator command. `interfaces` is an ament_cmake/rosidl skeleton that
-generates no types until reviewed interfaces are explicitly listed. The geometry
+route and publishes `control/debug/lookahead` but no actuator command. `interfaces` generates the simulation-only `SimActuatorCommand`; production
+message definitions remain pending. The geometry
 example is an unmeasured worksheet, not runtime configuration. See
 [development.md](development.md) for build and validation instructions.
 

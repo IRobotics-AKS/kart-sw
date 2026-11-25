@@ -1,8 +1,30 @@
-# Developing the scaffold
+# Development
 
-Updated: 2026-10-27.
+## Docker on Mac workstations
 
-## Implemented structure
+Use `./tools/sim-docker up` from the repository root, then
+`./tools/sim-docker smoke`. Docker Desktop supplies the Linux/ROS environment;
+no host ROS installation is needed. See [the runbook](../deploy/README.md).
+
+## Implemented simulation bridge (2026-11-24)
+
+The user requested a runnable simulation bridge and explicitly selected a
+separate simulation-only actuator input. `simulation/src/sim/runtime.py` now
+loads/steps/resets MuJoCo with a packaged synthetic test body. `sim_ros` publishes
+`/clock`, IMU and evaluation truth, and accepts bounded direct motor efforts on
+`sim/actuator_command` using `interfaces/msg/SimActuatorCommand`. These test-only
+commands are never published on `vehicle/command` and do not settle the physical
+actuator boundary. The demo is not a calibrated kart or a speed-controlled plant.
+
+Simulation bringup now launches the bridge with an explicit model/config; autonomy
+and hardware bringup remain guarded. GNSS, cameras, estimated state, production
+commands/status, the vehicle manager, kart geometry and physical integration are
+still pending. See [bridge runbook](../src/simulation/sim_ros/README.md) for commands,
+frames, QoS, simulation/wall timing, validity, pause/reset and verification limits.
+
+Updated: 2026-11-24.
+
+## Original scaffold structure (2026-10-24)
 
 There are 13 discoverable ROS packages under `src/`: eight ament_python library
 skeletons and five ament_cmake interface/description/bringup packages. Each has
@@ -31,7 +53,7 @@ second uses Docker Compose to render all four modes and both supported developme
 overlays, checking clock selection, service isolation, device access, and image
 source dependency sets. It never starts containers.
 
-## Standalone simulator package
+## Original standalone scaffold installation (superseded by bridge runbook)
 
 Use Python 3.12 and the repository-level environment. Create it once:
 
@@ -90,8 +112,8 @@ chosen ROS base image; no unverified NVIDIA image tag or registry is supplied.
 Compose inspection uses local example image tags and does not pull/build them.
 
 Simulation modes contain no physical bridge or device mapping. The live template
-also has no physical-device access yet. Launch guards intentionally prevent
-runtime startup. Recording is an optional help-only profile until topics, clock,
+also has no physical-device access yet. Autonomy and hardware guards prevent runtime startup; simulation now requires an
+explicit model and parameter file, which the templates do not yet supply. Recording is an optional help-only profile until topics, clock,
 storage path, and retention are selected. No systemd boot unit is installed.
 
 Release pinning, a Jetson mode lock, runtime readiness/freshness checks, critical
