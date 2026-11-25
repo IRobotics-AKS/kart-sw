@@ -1,0 +1,42 @@
+# Parameter worksheet for control/pure_pursuit_node, not runtime configuration.
+#
+# Every value below is null because none of them has been measured on the kart.
+# The node has no defaults and refuses to start until they are supplied, which is
+# deliberate: AGENTS.md forbids inventing actuator limits, and this directory's
+# README forbids substituting guessed timeouts. Fill these in from the vehicle and
+# save the result under a name without ".example", then pass it to the node.
+#
+# Geometry comes from the same measurement pass as
+# ../../../common/description/config/geometry.example.yaml; keep the two agreeing.
+status: unmeasured
+/**:
+  ros__parameters:
+    # Where the pre-calculated route lives, and the frame its coordinates use.
+    # The incoming localization/odometry must publish in this same frame; the
+    # node refuses the mismatch rather than tracking the route in the wrong place.
+    route_csv: null          # absolute path to a x_m,y_m,speed_mps file
+    route_frame: null        # "map" or "odom", matching the estimator in use
+
+    # Vehicle geometry. Measure; do not derive from the parts list.
+    wheelbase_m: null        # front axle to rear axle
+    max_steer_rad: null      # road-wheel angle at the mechanical stop
+
+    # Tracking tuning. Short lookahead tracks tightly and oscillates, long
+    # lookahead is smooth and cuts corners; the usable band is found on the
+    # vehicle. lookahead_m = clamp(min + gain * speed, min, max).
+    lookahead_min_m: null
+    lookahead_max_m: null
+    lookahead_gain_s: null   # seconds, so it reads as "look this far ahead in time"
+
+    # Tracking is abandoned beyond this lateral offset rather than commanding a
+    # recovery turn the geometry cannot justify.
+    max_cross_track_m: null
+
+    # Optional. Positive enables a curvature speed limit of sqrt(a / kappa);
+    # zero or absent leaves the route's own speeds alone.
+    max_lateral_accel_mps2: 0.0
+
+    # Rates and budgets follow from measured compute, network and actuator
+    # behaviour, per docs/ros-structure.md. These are not constants.
+    control_rate_hz: null
+    odometry_timeout_s: null # pose older than this stops tracking

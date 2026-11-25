@@ -1,4 +1,38 @@
+"""Geometric path tracking: pose and path in, steering angle and speed reference out.
 
+No ROS, simulation, or driver imports, per `control/README.md` and enforced by
+`tools/check_scaffold.py`. Nothing here knows what a topic is.
+
+WHAT THIS DELIBERATELY DOES NOT DO
+----------------------------------
+It does not emit actuator commands. `docs/ros-structure.md` records that the
+`ActuatorCommand` fields depend on whether the real boundary is current, torque,
+throttle/brake or speed, and that question is open. This module therefore stops
+at quantities that are true under every answer: a road-wheel steering angle in
+radians and a speed reference in metres per second. Converting either into
+actuator units belongs downstream, once the boundary is chosen.
+
+For the same reason there is no speed loop. `speed_mps` is a reference drawn from
+the path, not the output of a controller tracking measured speed. `AGENTS.md`
+asks that an unimplemented speed loop never be added silently, so it is named
+here instead.
+
+Nor does it supply vehicle geometry or actuator limits. `TrackerConfig` has no
+defaults for wheelbase or steering limit; the caller passes measured values.
+Kart geometry is unmeasured at the time of writing and inventing a number here
+would bury a guess somewhere nobody looks again.
+
+CONVENTIONS
+-----------
+SI units throughout. Body frame is X forward, Y left, Z up, per REP-103. Yaw is
+measured from the +X axis of the reference frame, counter-clockwise positive.
+A positive steering angle turns left, and positive cross-track error means the
+vehicle sits to the left of the path.
+
+The caller is responsible for the frame agreeing between `pose` and `path`.
+Nothing here can detect a frame mismatch; it will happily track a path expressed
+in the wrong frame.
+"""
 
 from __future__ import annotations
 
@@ -8,6 +42,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Pose:
+    """Vehicle pose in the same frame as the path."""
 
     x_m: float
     y_m: float
@@ -16,6 +51,13 @@ class Pose:
 
 @dataclass(frozen=True)
 class PathSample:
+    """One ordered sample of the reference path.
+
+    `speed_mps` is the speed the planner intends at this point. It is advisory:
+    this module passes it through, optionally reduced for curvature, and never
+    treats it as achieved.
+    """
+
     x_m: float
     y_m: float
     speed_mps: float
@@ -23,6 +65,16 @@ class PathSample:
 
 @dataclass(frozen=True)
 class TrackerConfig:
+    """Tuning and vehicle geometry. No defaults for anything vehicle-specific.
+
+    lookahead_m = clamp(lookahead_min_m + lookahead_gain_s * speed,
+                        lookahead_min_m, lookahead_max_m)
+
+    The gain has units of seconds, so it reads as "look this far ahead in time".
+    Short lookahead tracks tightly and oscillates; long lookahead is smooth and
+    cuts corners. The right value is measured on the vehicle, not derived.
+    """
+
     wheelbase_m: float
     max_steer_rad: float
     lookahead_min_m: float
@@ -52,6 +104,14 @@ class TrackerConfig:
 
 @dataclass(frozen=True)
 class TrackerResult:
+    """What the tracker decided, and enough context to see why.
+
+    When `valid` is False every numeric field is zero and `reason` says what went
+    wrong. Callers must branch on `valid`; a zero steering angle is not a safe
+    default, it is merely a defined one, and deciding what the vehicle does when
+    tracking fails is the manager's job rather than this module's.
+    """
+
     valid: bool
     reason: str
     steering_rad: float
@@ -79,6 +139,12 @@ def _invalid(reason: str) -> TrackerResult:
 
 
 def nearest_index(pose: Pose, path: list[PathSample]) -> int:
+    """Index of the path sample closest to the vehicle.
+
+    Searches the whole path. A kart lap is short enough that this is cheap, and a
+    windowed search around the previous index would carry state this module
+    deliberately does not hold. Revisit if profiling says otherwise.
+    """
     best, best_d2 = 0, math.inf
     for i, sample in enumerate(path):
         d2 = (sample.x_m - pose.x_m) ** 2 + (sample.y_m - pose.y_m) ** 2
@@ -88,6 +154,11 @@ def nearest_index(pose: Pose, path: list[PathSample]) -> int:
 
 
 def cross_track_error(pose: Pose, path: list[PathSample], index: int) -> float:
+    """Signed lateral offset from the path, positive when the vehicle is left of it.
+
+    Measured against the segment leaving `index`, or the one arriving at it for
+    the final sample, so the sign stays meaningful at both ends.
+    """
     if index + 1 < len(path):
         a, b = path[index], path[index + 1]
     else:
@@ -98,11 +169,18 @@ def cross_track_error(pose: Pose, path: list[PathSample], index: int) -> float:
     if length < 1e-9:
         return math.hypot(pose.x_m - a.x_m, pose.y_m - a.y_m)
 
+    # z component of (segment x vehicle offset), normalised: positive to the left
     to_vehicle_x, to_vehicle_y = pose.x_m - a.x_m, pose.y_m - a.y_m
     return (seg_x * to_vehicle_y - seg_y * to_vehicle_x) / length
 
 
 def _lookahead_target(path: list[PathSample], start: int, lookahead_m: float) -> tuple[int, bool]:
+    """Walk forward from `start` until `lookahead_m` of path has been covered.
+
+    Returns the index and whether the path ran out first. The path is treated as
+    open, not as a lap: closing it is the planner's decision to express, and
+    wrapping here would invent one.
+    """
     travelled = 0.0
     for i in range(start, len(path) - 1):
         travelled += math.hypot(path[i + 1].x_m - path[i].x_m,
@@ -113,6 +191,7 @@ def _lookahead_target(path: list[PathSample], start: int, lookahead_m: float) ->
 
 
 def _curvature_speed_limit(curvature: float, max_lateral_accel_mps2: float | None) -> float:
+    """Speed at which this curvature would reach the lateral acceleration limit."""
     if max_lateral_accel_mps2 is None or abs(curvature) < 1e-9:
         return math.inf
     return math.sqrt(max_lateral_accel_mps2 / abs(curvature))
@@ -120,6 +199,11 @@ def _curvature_speed_limit(curvature: float, max_lateral_accel_mps2: float | Non
 
 def track(pose: Pose, speed_mps: float, path: list[PathSample],
           config: TrackerConfig) -> TrackerResult:
+    """One tracking step.
+
+    `speed_mps` is the vehicle's current measured speed, used only to size the
+    lookahead distance. It is not fed back into a speed controller.
+    """
     if len(path) < 2:
         return _invalid("path needs at least two samples")
     if not math.isfinite(speed_mps) or speed_mps < 0.0:
@@ -148,6 +232,8 @@ def track(pose: Pose, speed_mps: float, path: list[PathSample],
     if distance < 1e-6:
         return _invalid("lookahead target coincides with the vehicle")
     if forward <= 0.0:
+        # Every remaining sample is behind the vehicle. Steering toward it would
+        # command a turn the geometry cannot justify.
         return _invalid("lookahead target is behind the vehicle")
 
     curvature = 2.0 * left / (distance * distance)

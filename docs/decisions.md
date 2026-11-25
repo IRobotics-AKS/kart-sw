@@ -112,6 +112,16 @@ Dependency setup, 2026-10-27: added MuJoCo 3.16.0 to the standalone simulator's
 Python dependencies and installed it in the existing repository-level environment.
 Import succeeded on macOS ARM64/Python 3.12, and the installed dependency check
 passed. ROS, container, physics, and rendering validation remain separate work.
+Control update, 2026-11-10: the first executable node landed. `control` now
+installs a `pure_pursuit_node` console script that tracks a pre-calculated
+route read from a CSV and publishes the selected lookahead point on
+`control/debug/lookahead` for inspection. It publishes no actuator command,
+because open question 7 below leaves the command boundary undecided, and it
+has no parameter defaults, because the kart is unmeasured; it refuses to start
+rather than run on plausible numbers. Decision logic lives in `control/
+algorithms/` and is covered by tests that need no ROS environment. CI does not
+run those tests yet. `geometry_msgs` was added to the external dependency
+allowlist in `tools/check_scaffold.py` so the debug path can be published.
 
 Layout update, 2026-10-27: the user requested removing the redundant standalone
 project directory beneath `simulation/`. Its `pyproject.toml`, assets, tests, and

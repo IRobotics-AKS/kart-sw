@@ -163,8 +163,9 @@ raises a scaffold error before starting any process. Simulation requires
 `use_sim_time=true`; hardware rejects it. Autonomy declares both clock modes.
 No robot_state_publisher is launched until measured geometry is implemented.
 
-Python runtime packages currently install namespaces and package resources with
-no console scripts. `interfaces` is an ament_cmake/rosidl skeleton that
+Python runtime packages install namespaces and package resources; `control`
+additionally installs the `pure_pursuit_node` console script, which tracks a
+route and publishes `control/debug/lookahead` but no actuator command. `interfaces` is an ament_cmake/rosidl skeleton that
 generates no types until reviewed interfaces are explicitly listed. The geometry
 example is an unmeasured worksheet, not runtime configuration. See
 [development.md](development.md) for build and validation instructions.
